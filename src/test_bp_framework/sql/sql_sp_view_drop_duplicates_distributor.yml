@@ -1,0 +1,12 @@
+sql: "@format CREATE OR REPLACE TEMPORARY VIEW sp_view_tps_so_distributor AS
+        SELECT
+          *
+        FROM
+        (
+          SELECT
+            *,
+            ROW_NUMBER() OVER (PARTITION BY DistributorID ORDER BY DistributorName) AS row_num
+          FROM
+            {env[MFL_CAT_MFL_BRONZE]}.external_files.mfl_tps_so_za_dim_distributor
+        ) AS subquery
+        WHERE row_num = 1"

@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../yaml_schema/adm_task_config_schema.json
+version: '1.0'
+actions:
+  - name: load_fact_sellout_za
+    enable: true
+    module_file_path: admcore.cbc.common.actions:general_action
+    functions:
+      - name: final_mapping_with_salesforce
+        enable: true
+        module_file_path: admcore.cbc.common.functions:default_sql_query
+        kwargs:
+          input_function_name:
+          output_view_name: sp_view_final_mapping_result
+          sql: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/sql/final_mapping_salesforce.yml"
+      - name: "@format Create table {env[MFL_CAT_GRW_SILVER]}.fact.sellout"
+        enable: true
+        module_file_path: admcore.cbc.common.functions:create_table_by_contract_by_config
+        kwargs:
+          input_function_name:
+          output_view_name:
+          contract: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/data_contract/fact.sellout.yml"
+          system_columns: []
+      - name: delete_existing_za_data_in_fact_sellout
+        enable: true
+        module_file_path: admcore.cbc.common.functions:default_sql_modification
+        kwargs:
+          input_function_name:
+          output_view_name:
+          sql: "@format DELETE FROM {env[MFL_CAT_GRW_SILVER]}.fact.sellout WHERE sellout_data_provider_id={this.session_variables.tps_data_provider_id}"
+      - name: save_final_mapping_to_fact_sellout_table
+        enable: true
+        module_file_path: admcore.cbc.common.functions:default_load_table
+        kwargs:
+          input_function_name: "@format {this.actions[0].functions[0].name}"
+          output_view_name:
+          cbc: sellout
+          contract: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/data_contract/fact.sellout.yml"
+          save_mode: append
+          upsert_keys: []

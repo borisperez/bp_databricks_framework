@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=../../yaml_schema/adm_pipeline_config_schema.json
+version: '1.0'
+info:
+  enterprise_id:
+  domain:
+  category:
+  subcategory:
+  desc:
+  pipeline_file_path: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/pipeline.yml"
+tasks:
+  before:
+    enable: false
+    config_file_path: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/before.yml"
+  load_bronze:
+    enable: false
+    config_file_path: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/load_bronze.yml"
+  quality_check:
+    enable: false
+    config_file_path: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/bronze_quality_check.yml"
+  load_silver_enrich:
+    enable: false
+    config_file_path: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/load_silver_enrich.yml"
+  load_silver_final:
+    enable: false
+    config_file_path: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/load_silver_final.yml"
+  load_gold:
+    enable: false
+    config_file_path:
+  after:
+    enable: false
+    config_file_path: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/after.yml"
+  clean:
+    enable: false
+    config_file_path:
+  report:
+    enable: false
+    config_file_path: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/report.yml"
+email_notification:
+  report_name: bp_databricks_framework
+  recipients:
+  - boris.bperez@gmail.com
+  on_fail:
+    module_file_path: admcore.cbc.common.actions:send_failure_email
+    kwargs:
+      message: "@format Pipeline {this.info.enterprise_id} failed. Please don't reply this email and check the error message below."
+      bullets:
+        pipeline_id: "@format {this.info.enterprise_id}"
+        batch_id: "format {this.session_variables.batch_id}"

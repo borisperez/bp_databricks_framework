@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../../yaml_schema/adm_task_config_schema.json
+version: '1.0'
+actions:
+  - name: load_tps_so_za_master
+    enable: true
+    module_file_path: admcore.cbc.common.actions:general_action
+    functions:
+      - name: drop_duplicate_product
+        enable: true
+        module_file_path: admcore.cbc.common.functions:default_sql_query
+        kwargs:
+          input_function_name:
+          output_view_name: sp_view_tps_so_product
+          sql: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/sql/sql_sp_view_drop_duplicates_product.yml"
+
+      - name: drop_duplicate_buyer
+        enable: true
+        module_file_path: admcore.cbc.common.functions:default_sql_query
+        kwargs:
+          input_function_name:
+          output_view_name: sp_view_tps_so_buyer
+          sql: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/sql/sql_sp_view_drop_duplicates_buyer.yml"
+
+      - name: drop_duplicate_distributor
+        enable: true
+        module_file_path: admcore.cbc.common.functions:default_sql_query
+        kwargs:
+          input_function_name:
+          output_view_name: sp_view_tps_so_distributor
+          sql: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/sql/sql_sp_view_drop_duplicates_distributor.yml"
+
+      - name: denormalize_za_tables
+        enable: true
+        module_file_path: admcore.cbc.common.functions:default_sql_query
+        kwargs:
+          input_function_name:
+          output_view_name: sp_view_tps_so_za_master
+          sql: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework1/sql/sql_sp_view_tps_so_za_master.yml"
+      
+      - name: call transform function boolean_values_standardization
+        enable: true
+        module_file_path: admcore.cbc.common.functions.transform:boolean_values_standardization
+        kwargs:
+          input_function_name: denormalize_za_tables
+          output_view_name:
+          columns: [test]
+          options:
+            true_values: ["1", "Y", "Yes"]
+            false_values: ["0", "N", "X"]
+
+      - name: load_tps_so_za_master_table_from_denormalize_za_tables
+        enable: true
+        module_file_path: admcore.cbc.common.functions:ace_v2
+        kwargs:
+          input_function_name: call transform function boolean_values_standardization
+          output_view_name:
+          cbc: sellout
+          contract: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/data_contract/enriched.tps_so_za_master.yml"
+          nat_keys: ["distributor_number", "customer_number", "product_code", "period_start"]
+          salt: MFL_SELLOUT
+          save_mode: scd2
+          links:
+            - key_columns: ["distributor_number"]
+              key_constant:
+              salt: MFL_SAP_KNV
+              lnk_cbc: customer
+            - key_columns: ["customer_number"]
+              key_constant:
+              salt: MFL_CRM_Account
+              lnk_cbc: operator_customer
+            - key_columns: ["product_code"]
+              key_constant:
+              salt: MFL_SAP_MARA
+              lnk_cbc: product

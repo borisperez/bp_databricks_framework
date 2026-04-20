@@ -1,0 +1,1 @@
+sql: "@format delete from {env[MFL_CAT_GRW_SILVER]}.fact.sellout"

@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../yaml_schema/adm_task_config_schema.json
+version: '1.0'
+actions:
+  - name: load_sales_csv_file
+    enable: true
+    module_file_path: admcore.cbc.common.actions:general_action
+    functions:
+      - name: read_raw_file_FactSales_csv
+        enable: true
+        module_file_path: admcore.cbc.common.functions:spark_read_csv_files
+        kwargs:
+          input_function_name:
+          output_view_name:
+          path_pattern: "@format {env[MFL_TPS_RAW_FILE_ROOT_PATH]}/tps/raw_files/FactSales*.csv"
+          kwargs:
+            # Use spark.read.csv arguments
+            sep: ","
+            header: true
+      - name: raw_data_quality_check
+        enable: true
+        module_file_path: admcore.cbc.common.functions:dataframe_quality_check_by_soda
+        kwargs:
+          input_function_name: "@format {this.actions[0].functions[0].name}"
+          output_view_name:
+          soda_config_file_path: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/soda/soda_FactSales_csv_file.yml"
+          verbose: true
+          audit:
+            check_target_type: file # One of ["file", "table", "dataframe"]
+            check_target_name: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/soda/soda_FactSales_csv_file.yml"
+            retention_days: 30
+      - name: load_output_table
+        enable: true
+        module_file_path: admcore.cbc.common.functions:load_table_with_system_columns
+        kwargs:
+          input_function_name: "@format {this.actions[0].functions[0].name}"
+          output_view_name:
+          contract: "@format {env[MFL_PROJECT_FILE_ROOT_PATH]}/test_bp_framework/data_contract/external_files.mfl_tps_so_za_fact_sales.yml"
+          save_mode: overwrite
+          upsert_keys: []
+  

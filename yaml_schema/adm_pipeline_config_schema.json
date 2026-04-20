@@ -1,0 +1,112 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "version": {
+        "type": "string",
+        "enum": ["1.0"]
+      },
+      "info": {
+        "type": "object",
+        "properties": {
+          "enterprise_id": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "subcategory": {
+            "type": "string"
+          },
+          "desc": {
+            "type": "string"
+          },
+          "pipeline_file_path": {
+            "type": "string"
+          }
+        }
+      },
+      "tasks": {
+        "type": "object",
+        "properties": {
+          "before": { "$ref": "#/definitions/task" },
+          "load_bronze": { "$ref": "#/definitions/task" },
+          "quality_check": { "$ref": "#/definitions/task" },
+          "load_silver_enrich": { "$ref": "#/definitions/task" },
+          "load_silver_final": { "$ref": "#/definitions/task" },
+          "load_gold": { "$ref": "#/definitions/task" },
+          "after": { "$ref": "#/definitions/task" },
+          "clean": { "$ref": "#/definitions/task" },
+          "report": { "$ref": "#/definitions/task" }
+        },
+        "additionalProperties": false
+      },
+      "email_notification": {
+        "type": "object",
+        "properties": {
+          "report_name": {
+            "type": "string"
+          },
+          "recipients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "on_fail": {
+            "type": "object",
+            "properties": {
+              "module_file_path": {
+                "type": "string"
+              },
+              "kwargs": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  },
+                  "bullets": {
+                    "type": "object",
+                    "properties": {
+                      "pipeline_id": {
+                        "type": "string"
+                      },
+                      "batch_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["pipeline_id", "batch_id"]
+                  }
+                },
+                "required": ["message", "bullets"]
+              }
+            },
+            "required": ["module_file_path", "kwargs"]
+          }
+        },
+        "required": ["report_name", "recipients", "on_fail"],
+        "additionalProperties": false
+      }
+    },
+    "required": ["version", "info", "tasks", "email_notification"],
+    "additionalProperties": false,
+    "definitions": {
+      "task": {
+        "type": "object",
+        "properties": {
+          "enable": {
+            "type": "boolean"
+          },
+          "config_file_path": {
+            "type": ["string"]
+          }
+        },
+        "required": ["enable", "config_file_path"],
+        "additionalProperties": false
+      }
+    }
+  }
+  

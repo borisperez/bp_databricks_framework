@@ -1,0 +1,33 @@
+"""
+setup.py configuration script describing how to build and package this project.
+
+This file is primarily used by the setuptools library and typically should not
+be executed directly. See README.md for how to deploy, test, and run
+the growth project under src folder.
+"""
+
+
+from setuptools import setup, find_packages
+
+
+import sys
+sys.path.append('./src')
+
+setup(
+    name="bp_databricks_framework",
+    # We use timestamp as Local version identifier (https://peps.python.org/pep-0440/#local-version-identifiers.)
+    # to ensure that changes to wheel package are picked up when used on all-purpose clusters
+    version="1.0.0",
+    url="https://databricks.com",
+    author="boris.bperez@gmail.com",
+    description="wheel file based on src",
+    packages=find_packages(where='./src'),
+    package_dir={'': 'src'},
+    install_requires=[
+        # Dependencies in case the output wheel file is used as a library dependency.
+        # For defining dependencies, when this package is used in Databricks, see:
+        # https://docs.databricks.com/dev-tools/bundles/library-dependencies.html
+        # "setuptools"
+    ],
+    python_requires=">=3.10",
+)

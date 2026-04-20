@@ -1,0 +1,16 @@
+# Please check soda document for how to create data quality checking config files
+# Column names listed here are just examples.
+# Replace <your_bronze_table_name> with the bronze table name that you want to validate
+checks for sp_view_soda_<your_bronze_table_name>:
+  - schema:
+      name: Find forbidden, missing, or wrong type
+      fail:
+        when required column missing:
+          #- BuyerID
+          #- BuyerName
+          #- Region
+          #- GPSLat
+          #- GPSLong
+          #- Environment
+          #- SubEnvironment
+          #- CuisineType

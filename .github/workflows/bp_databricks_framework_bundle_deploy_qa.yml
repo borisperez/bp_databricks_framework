@@ -1,0 +1,92 @@
+name: "bp_databricks_framework QA Deploy"
+
+concurrency: "1"
+
+on:
+  release:
+    types: [published]  # Triggers only when a release is published
+
+jobs:
+  deploy-asset-bundle-qa:
+    if: github.event.release.target_commitish == 'qa'
+    name: "Deploy bp_databricks_framework Asset bundle to QA"
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out code
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      
+      # Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependency for Bundle build
+        run: pip install setuptools wheel
+
+      # Download databricks cli
+      - name: Download databricks cli
+        uses: databricks/setup-cli@v0.237.0
+
+      # Prepare databricks authentication for service principle
+      - name: Databricks Authentication
+        env:
+          DATABRICKS_HOST: https://adb-1564284185737188.8.azuredatabricks.net
+          CLIENT_ID: ${{ fromJson(secrets.DATABRICKS_CREDENTIALS).core-uat.client_id }}
+          CLIENT_SECRET: ${{ fromJson(secrets.DATABRICKS_CREDENTIALS).core-uat.client_secret }}
+        run: |
+          set +x
+          cat <<EOF > ~/.databrickscfg
+          [qa]
+          host = $DATABRICKS_HOST
+          client_id = $CLIENT_ID
+          client_secret = $CLIENT_SECRET
+          EOF
+          set -x
+      
+      # Deploy asset bundle
+      - name: Deploy asset bundle
+        run: |
+          cd .
+          databricks bundle deploy -t qa
+      
+      # Check if any files have been updated in src/data_contract folder
+      - name: Check if data_contract or data_crud files have updates
+        id: data_contract_crud_check_diff
+        run: |
+          CURRENT_TAG=${{ github.event.release.tag_name }}
+          echo "Current tag: $CURRENT_TAG"
+
+          # Get the previous tag (sorted by version, latest first, then skip the first)
+          PREVIOUS_TAG=$(git tag --sort=-creatordate | grep -v "^$CURRENT_TAG$" | head -n 1)
+
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "No previous tag found, diffing from initial commit"
+            DIFF_RANGE=$(git rev-list --max-parents=0 HEAD)..$CURRENT_TAG
+          else
+            echo "Previous tag: $PREVIOUS_TAG"
+            DIFF_RANGE=$PREVIOUS_TAG..$CURRENT_TAG
+          fi
+
+          if git diff --name-only $DIFF_RANGE | grep -E '^(src/data_contract|src/data_crud)/.*\.(yml|yaml)$'; then
+            echo "data_contract and/or data_crud changed!"
+            echo "data_contract_changed=true" >> $GITHUB_ENV
+          else
+            echo "data_contract_changed=false" >> $GITHUB_ENV
+          fi
+
+      - name: print data_contract_changed env
+        run: |
+          echo "env.data_contract_changed: ${{ env.data_contract_changed }}"
+
+      # Update table schemas if some contract files are updated
+      - name: Update table schemas
+        if: env.data_contract_changed == 'true'
+        run: |
+          echo "data_contract files changed!"
+          databricks bundle run -t qa bundle_bp_databricks_framework_update_table_schema

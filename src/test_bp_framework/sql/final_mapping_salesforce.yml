@@ -1,0 +1,25 @@
+sql: "@format
+      SELECT
+        sellout_hashkey,
+        customer_hashkey AS operator_id,
+        product_hashkey AS product_id,
+        product_code AS sellout_product_id,
+        operator_customer_hashkey AS distributor_id,
+        0 AS sales_cases,
+        0 AS sales_lbs,
+        0 AS sales_kgs,
+        amount AS sales_qty,
+        0 AS sales_weight,
+        period_start,
+        period_end,
+        {this.session_variables.tps_data_provider_id} AS sellout_data_provider_id,
+        uom AS sales_uom,
+        country_code AS transaction_currency_code,
+        NULL AS sellout_distributor_id,
+        customer_number sellout_operator_id,
+        0 AS qty_in_packs,
+        0 AS unit_price,
+        0 AS price_per_pack,
+        NULL as sales_man_id,
+        NULL as transaction_id
+      FROM {env[MFL_CAT_GRW_SILVER]}.enriched.tps_so_za_master"
