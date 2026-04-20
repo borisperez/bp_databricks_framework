@@ -1,0 +1,219 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "versioning": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": ["version", "last_updated"],
+        "additionalProperties": false
+      },
+      "type": {
+        "type": "string"
+      },
+      "domain": {
+        "type": "string"
+      },
+      "sensitivity_label": {
+        "type": "string"
+      },
+      "table_name": {
+        "type": "string"
+      },
+      "description": {
+        "type": ["string", "null"]
+      },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+                "type": "string"
+            },
+            "value": {
+                "type": "string"
+            }
+          }
+        }
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "required": ["name", "type", "description"]
+            }
+          }
+        },
+        "required": ["columns"],
+        "additionalProperties": false
+      },
+      "security": {
+        "type": "object",
+        "properties": {
+          "column_level": {
+            "type":"object",
+            "properties": {
+              "enable": {
+                "type": "boolean"
+              },
+              "entitlement_table": {
+                "type": "string"
+              },
+              "service_principal_group": {
+                "type": "array"
+              },
+              "mask_policy": {
+                "type":"array",
+                "items": {
+                  "type":"object",
+                  "properties": {
+                    "column_names":{
+                      "type":"array"
+                    },
+                    "function": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["column_names", "function"]
+                }
+              }
+            },
+            "required": ["enable", "entitlement_table", "service_principal_group", "mask_policy"]
+          },
+          "row_level": {
+            "type": "object",
+            "properties": {
+              "enable": {
+                "type": "boolean"
+              },
+              "column_name": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array"
+                  }
+                ]
+              },
+              "entitlement_table": {
+                "type": "string"
+              },
+              "service_principal_group": {
+                "type": "array"
+              },
+              "function": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sql": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "required": ["enable", "column_name", "entitlement_table", "service_principal_group"]
+          },
+          "db_object_permission": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "privilege_types": {
+                  "type":"array",
+                  "minItems": 1
+                },
+                "principals": {
+                  "type":"array",
+                  "minItems": 1
+                }
+              },
+              "required": ["privilege_types", "principals"]
+            }
+          }
+        },
+        "anyOf":[
+          {"required": ["row_level"]},
+          {"required": ["column_level"]},
+          {"required": ["db_object_permission"]}
+        ],
+        "additionalProperties": false
+      },
+      "performance": {
+        "type": "object",
+        "properties": {
+          "cluster_by": {
+            "type": "object",
+            "properties": {
+              "column_names": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": ["column_names"]
+          }
+        },
+        "required": ["cluster_by"],
+        "additionalProperties": false
+      }
+    },
+    "required": ["versioning", "sensitivity_label", "table_name", "schema"],
+    "additionalProperties": false
+  }
+  

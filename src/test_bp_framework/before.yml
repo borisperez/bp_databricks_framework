@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../yaml_schema/adm_task_config_schema.json
+version: '1.0'
+actions:
+  - name: add_session_variables
+    enable: true
+    module_file_path: admcore.cbc.common.actions:general_action
+    functions:
+      - name: add_session_variables
+        enable: true
+        module_file_path: admcore.cbc.common.functions:add_session_variables
+        kwargs:
+          # The following variables can be called in any task config files within the same pipeline
+          # example: {this.session_variables.sellout_data_provider_id}
+          # Note: these variables are just examples. Please create your own variables.
+          - variable_name: test
+            variable_value: test

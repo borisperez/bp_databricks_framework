@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../yaml_schema/adm_task_config_schema.json
+version: '1.0'
+actions:
+  - name: send_report
+    enable: true
+    module_file_path: admcore.cbc.common.actions:general_action
+    functions:
+      - name: send_report
+        enable: true
+        module_file_path: admcore.cbc.common.functions:send_report_email_unpivot
+        kwargs:
+          input_function_name:
+          output_view_name:
+          sql_list:
+            - name: pipeline_information
+              sql: "@format 
+                      SELECT
+                        '{env[MFL_RUNTIME_ENV]}' AS environment,
+                        'za' AS data_provider_code,
+                        1006 AS data_provider_id,
+                        '{this.session_variables.batch_id}' AS batch_id
+                    "
+            - name: processed_records
+              sql: "@format
+                      SELECT
+                        sum(amount) AS total_base_volume,
+                        count(*) AS processed_number_of_records
+                      FROM {env[MFL_CAT_GRW_SILVER]}.enriched.tps_so_za_master
+                    "

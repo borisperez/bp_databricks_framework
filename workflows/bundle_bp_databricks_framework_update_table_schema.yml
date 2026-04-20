@@ -1,0 +1,25 @@
+resources:
+  jobs:
+    bundle_bp_databricks_framework_update_table_schema:
+      name: bundle_bp_databricks_framework_update_table_schema
+      tasks:
+        - task_key: update_table_schema
+          python_wheel_task:
+            package_name: adm-core
+            entry_point: db_table_manager
+            parameters:
+              - --runtime_env
+              - "${var.run_time_env}"
+              - --project_root_path
+              - "${var.project_file_root_path}"
+              - --env_file_path
+              - "${var.environment_file_path}"
+              - --contract_file_path_list
+              - "${var.project_file_root_path}/data_contract"
+              - --crud_file_path_list
+              - "${var.project_file_root_path}/data_crud"
+          libraries:
+            - whl: ../${var.adm_core_library}
+            - whl: "../${var.project_module_library}"
+      queue:
+        enabled: true

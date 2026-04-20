@@ -1,0 +1,23 @@
+resources:
+  jobs:
+    bundle_bp_databricks_framework_test_bp_framework:
+      name: bundle_bp_databricks_framework_test_bp_framework
+      tasks:
+        - task_key: main
+          python_wheel_task:
+            package_name: adm-core
+            entry_point: main
+            parameters:
+              - --runtime_env
+              - "${var.run_time_env}"
+              - --project_file_root_path
+              - "${var.project_file_root_path}"
+              - --environment_file_path
+              - "${var.environment_file_path}"
+              - --pipeline_file_path
+              - "${var.project_file_root_path}/test_bp_framework/pipeline.yml"
+          libraries:
+            - whl: ../${var.adm_core_library}
+            - whl: "../${var.project_module_library}"
+      queue:
+        enabled: true

@@ -1,0 +1,39 @@
+project:
+  name: bp_databricks_framework
+databricks:
+  workspaces:
+    - name: Growth
+      url:
+        dev: https://adb-982288893326755.15.azuredatabricks.net
+        qa: https://adb-3355058940338859.19.azuredatabricks.net
+        prod: https://adb-1023684873613881.1.azuredatabricks.net
+    - name: Supply Chain
+      url:
+        dev: https://adb-1534255211069001.1.azuredatabricks.net
+        qa: https://adb-4337595229388785.5.azuredatabricks.net
+        prod: https://adb-4339541563973535.15.azuredatabricks.net
+    - name: Finance
+      url:
+        dev: https://adb-3107134495216511.11.azuredatabricks.net
+        qa: https://adb-2000080268416382.2.azuredatabricks.net
+        prod: https://adb-213304101815117.17.azuredatabricks.net
+    - name: Agriculture
+      url:
+        dev: https://adb-54001242538101.1.azuredatabricks.net
+        qa: https://adb-493605699899168.8.azuredatabricks.net
+        prod: https://adb-2962988977073095.15.azuredatabricks.net
+    - name: HR
+      url:
+        dev: https://adb-2199059861738382.2.azuredatabricks.net
+        qa: https://adb-263319213244387.7.azuredatabricks.net
+        prod: https://adb-971416074967788.8.azuredatabricks.net
+    - name: Procurement
+      url:
+        dev: https://adb-360325603937068.8.azuredatabricks.net
+        qa: https://adb-360325603937068.8.azuredatabricks.net
+        prod: https://adb-360325603937068.8.azuredatabricks.net
+    - name: Manufacturing
+      url:
+        dev: https://adb-926540974883656.16.azuredatabricks.net
+        qa: https://adb-1564284185737188.8.azuredatabricks.net
+        prod: https://adb-257950992274481.1.azuredatabricks.net

@@ -1,0 +1,6 @@
+sql: "@format CREATE OR REPLACE VIEW edp_labs_dev.fact.vw_mfl_tps_so_za_fact_sales_2
+        AS 
+          SELECT
+            BuyerID,
+            SKUCode 
+          FROM {env[MFL_CAT_MFL_BRONZE]}.external_files.mfl_tps_so_za_fact_sales;"

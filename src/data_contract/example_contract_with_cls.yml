@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../yaml_schema/adm_data_contract_config_schema.json
+versioning:
+  version: 1.0.0
+  last_updated: 2025-01-29
+type: test
+domain: test
+sensitivity_label: internal
+table_name: "@format {env[MFL_CAT_GRW_SILVER]}.data.test_table1"
+description: test
+tags:
+  - name: test
+    value: test
+schema:
+  columns:
+    - name: test1
+      type: string
+      description: test1
+      tags:
+        - name: test
+          value: test
+    - name: test2
+      type: string
+      description: test2
+      tags:
+        - name: test
+          value: test
+    - name: test3
+      type: string
+      description: test3
+      tags:
+        - name: test
+          value: test
+

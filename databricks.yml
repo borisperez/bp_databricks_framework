@@ -1,0 +1,142 @@
+# yaml-language-server: $schema=yaml_schema/bundle_config_schema.json
+
+# This is a Databricks asset bundle definition for DAIA-adm-third-party-sales.
+# The Databricks extension requires databricks.yml configuration file.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+
+bundle:
+  name: bp_databricks_framework
+
+artifacts:
+  default:
+    type: whl
+    build: python setup.py sdist bdist_wheel
+    path: .
+
+variables:
+  run_time_env:
+    default: dev
+    description: run_time_env argument to workflow
+  databricks_cluster_id:
+    default: 0225-160850-g65o4546?o
+  environment_file_path:
+    default: ${workspace.file_path}/src/env.toml
+  project_file_root_path:
+    default: ${workspace.file_path}/src
+  adm_core_library:
+    default: ./adm_core/adm_core-0.26-py3-none-any.whl
+    #default: /Volumes/edp_ops_dev/edp_ops/tps/adm_core_modules/adm_core-0.0.1-py3-none-any.whl
+  project_module_library:
+    default: ./dist/bp_databricks_framework-1.0.0-py3-none-any.whl
+
+include:
+  - "workflows/bundle*.yml"
+
+sync:
+  exclude:
+    # Folders and files listed here wil not be deployed to Databricks 
+    - .venv/**
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-5944275879339631.11.azuredatabricks.net/
+    
+    resources:
+      jobs:
+        bundle_bp_databricks_framework_update_table_schema:
+          name: bundle_bp_databricks_framework_update_table_schema
+          tasks:
+            - task_key: update_table_schema
+              existing_cluster_id: ${var.databricks_cluster_id}
+        bundle_bp_databricks_framework_test_bp_framework:
+          name: bundle_bp_databricks_framework_test_bp_framework
+          tasks:
+            - task_key: main
+              existing_cluster_id: "${var.databricks_cluster_id}"
+
+  qa:
+    mode: production
+    workspace:
+      host: https://adb-5944275879339631.11.azuredatabricks.net/
+    permissions:
+      - user_name: boris.bperez@gmail.com
+        level: CAN_MANAGE
+    run_as:
+      service_principal_name: "a0b16555-056f-4390-843e-f33d295b7d20" 
+    variables:
+      run_time_env: qa
+    resources:
+      jobs:
+        bundle_bp_databricks_framework_update_table_schema:
+          name: bundle_bp_databricks_framework_update_table_schema
+          tasks:
+            - task_key: update_table_schema
+              job_cluster_key: job_cluster_update_table_schema
+          job_clusters:
+            - job_cluster_key: job_cluster_update_table_schema
+              new_cluster:
+                spark_version: 16.3.x-scala2.12
+                node_type_id: Standard_D8a_v4
+                autoscale:
+                  min_workers: 1
+                  max_workers: 2
+                data_security_mode: USER_ISOLATION
+        bundle_bp_databricks_framework_test_bp_framework:
+          name: bundle_bp_databricks_framework_test_bp_framework
+          tasks:
+            - task_key: main
+              job_cluster_key: job_cluster_bp_databricks_framework_test_bp_framework
+          job_clusters:
+            - job_cluster_key: job_cluster_bp_databricks_framework_test_bp_framework
+              new_cluster:
+                spark_version: 16.3.x-scala2.12
+                node_type_id: Standard_D8a_v4
+                autoscale:
+                  min_workers: 1
+                  max_workers: 8
+                data_security_mode: USER_ISOLATION
+  
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-5944275879339631.11.azuredatabricks.net/
+    permissions:
+      - user_name: boris.bperez@gmail.com
+        level: CAN_MANAGE
+    run_as:
+      service_principal_name: "c678eaa2-06c0-4623-bf4f-df2a550ddbc6" 
+    variables:
+      run_time_env: prod
+    resources:
+      jobs:
+        bundle_bp_databricks_framework_update_table_schema:
+          name: bundle_bp_databricks_framework_update_table_schema
+          tasks:
+            - task_key: update_table_schema
+              job_cluster_key: job_cluster_update_table_schema
+          job_clusters:
+            - job_cluster_key: job_cluster_update_table_schema
+              new_cluster:
+                spark_version: 16.3.x-scala2.12
+                node_type_id: Standard_D8a_v4
+                autoscale:
+                  min_workers: 1
+                  max_workers: 2
+                data_security_mode: USER_ISOLATION
+        bundle_bp_databricks_framework_test_bp_framework:
+          name: bundle_bp_databricks_framework_test_bp_framework
+          tasks:
+            - task_key: main
+              job_cluster_key: job_cluster_bp_databricks_framework_test_bp_framework
+          job_clusters:
+            - job_cluster_key: job_cluster_bp_databricks_framework_test_bp_framework
+              new_cluster:
+                spark_version: 16.3.x-scala2.12
+                node_type_id: Standard_D8a_v4
+                autoscale:
+                  min_workers: 1
+                  max_workers: 8
+                data_security_mode: USER_ISOLATION

@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../yaml_schema/adm_task_config_schema.json
+version: '1.0'
+actions:
+  - name: Check table mfl_tps_so_za_fact_sales
+    enable: true
+    module_file_path: admcore.cbc.common.actions:general_action
+    functions:
+      - name: your_function_name
+        enable: true
+        module_file_path: admcore.cbc.common.functions:table_quality_check_by_soda
+        kwargs:
+          input_function_name:
+          output_view_name:
+          table_name: 
+          soda_config_file_path: 
+          verbose: true
+  

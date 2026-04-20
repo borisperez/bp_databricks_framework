@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../yaml_schema/adm_data_contract_config_schema.json
+versioning:
+  version: 1.0.0
+  last_updated: 2025-01-29
+type: test
+domain: test
+sensitivity_label: internal
+table_name: "@format {env[MFL_CAT_GRW_SILVER]}.enriched.<your_table_name>"
+description: test
+tags:
+  - name: test
+    value: test
+schema:
+  columns:
+    - name: test
+      type: string
+      description: test
+      tags:
+        - name: test
+          value: test
+security:
+  row_level:
+    enable: false
+    column_name: test
+    entitlement_table: "@format {env[MFL_SKM_ENTITLEMENT]}.<your_entitlement_table_name>"
+    service_principal_group: [service_principal]
+  db_object_permission:
+    - privilege_types: ["ALL PRIVILEGES"]
+      principals: ["AAD_EDP_Platform_Engineering_Dev_P3"]
+performance:
+  cluster_by:
+    column_names: [test]
